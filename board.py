@@ -6,8 +6,9 @@
 
 import sys
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+#from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QGridLayout, QGroupBox, QLabel, QDialog, QLineEdit, QSizePolicy
+from PyQt5 import QtCore
 
 
 class Board(QDialog):
@@ -39,21 +40,26 @@ class Board(QDialog):
 
         for i in range(3):
             for j in range(3):
-                btn = QPushButton("")
-                btn.setSizePolicy(
+                button = QPushButton("", self)
+
+                button.setSizePolicy(
                     QSizePolicy.Preferred,
                     QSizePolicy.Expanding)
+                # We put the focus policy so that the firs button created
+                # Isnt put with a different color than the others
+                button.setFocusPolicy(QtCore.Qt.NoFocus)
+                button.setStyleSheet("color: %s" % "#000000")
 
-                layout.addWidget(btn, i, j)
+                layout.addWidget(button, i, j)
 
-                self.buttons_list.append(btn)
+                self.buttons_list.append(button)
 
     def __create_scoreboard(self, layout):
         self.player1 = QLabel("player1")
         self.player2 = QLabel("player2")
 
-        layout.addWidget(player1, 1, 1)
-        layout.addWidget(player2, 1, 3)
+        layout.addWidget(self.player1, 1, 1)
+        layout.addWidget(self.player2, 1, 3)
 
     def get_buttons(self):
         return self.buttons_list
