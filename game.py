@@ -100,7 +100,7 @@ class Game:
         buttons_vertical_bool = self.check_buttons_vertically()
 
         if self.turn == 2 or self.turn == 0:
-            if buttons_horizontal_bool == True or buttons_diagonal_bool == True or buttons_vertical_bool == True:
+            if buttons_horizontal_bool or buttons_diagonal_bool or buttons_vertical_bool:
                 for row in self.button_list:
                     for button in row:
                         button.setDisabled(True)
