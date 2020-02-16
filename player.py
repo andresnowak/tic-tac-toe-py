@@ -19,3 +19,6 @@ class Player:
 
     def get_player_stylesheet(self):
         return self.player_stylesheet
+
+    def get_score(self):
+        return self.player_score

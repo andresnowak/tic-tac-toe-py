@@ -40,7 +40,7 @@ class Board(QDialog):
 
         for i in range(3):
             for j in range(3):
-                button = QPushButton("", self)
+                button = QPushButton(" ", self)
 
                 button.setSizePolicy(
                     QSizePolicy.Preferred,
@@ -55,8 +55,10 @@ class Board(QDialog):
                 self.buttons_list.append(button)
 
     def __create_scoreboard(self, layout):
-        self.player1 = QLabel("player1")
-        self.player2 = QLabel("player2")
+        self.player1 = QLabel("player1: 0")
+        self.player2 = QLabel("player2: 0")
+        self.player1.setStyleSheet("font-size: 15px")
+        self.player2.setStyleSheet("font-size: 15px")
 
         layout.addWidget(self.player1, 1, 1)
         layout.addWidget(self.player2, 1, 3)

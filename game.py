@@ -9,6 +9,7 @@ import sys
 from board import Board
 from player import Player
 from PyQt5.QtWidgets import QApplication
+from PyQt5 import QtCore, QtTest
 from numpy import transpose
 
 
@@ -25,12 +26,18 @@ class Game:
 
         self.turn = 0
         # Prepare the variable to be used to update the buttons with the symbol # of the actual player and the actual stylesheet
+        self.list_of_players = [self.player1, self.player2]
+        self.actual_player = 1
         self.actual_symbol = self.player1.get_player_sign()
         self.actual_stylesheet = self.player1.get_player_stylesheet()
         # Create the Qt Application
         app = QApplication([])
         # Create and show the form, and connect buttons to event
         self.board = Board(WIDTH, HEIGHT)
+        # Change scoreboard of the actual player to say it is its turn
+        # with a green color
+        self.board.get_scoreboard()[self.actual_player-1].setStyleSheet(
+            "font-size: 15px; color: green")
 
         self.connect_event_to_buttons()
         self.board.show()
@@ -62,27 +69,53 @@ class Game:
         return button_text
 
     def update_actual_player(self):
+        # Todo: fix how we change the scoreboard
         if self.turn == 2:
             self.turn *= -1
 
-            self.actual_symbol = self.player2.get_player_sign()
-            self.actual_stylesheet = self.player2.get_player_stylesheet()
-        if self.turn == 0:
-            self.actual_symbol = self.player1.get_player_sign()
-            self.actual_stylesheet = self.player1.get_player_stylesheet()
+            self.actual_player = 2
+        elif self.turn == 0:
+            self.actual_player = 1
+
+        if self.turn == -2 or self.turn == 0:
+            if self.actual_player == 1:
+                self.board.get_scoreboard()[0].setStyleSheet(
+                    "font-size: 15px; color: green")
+                self.board.get_scoreboard()[1].setStyleSheet(
+                    "font-size: 15px; color: black")
+            elif self.actual_player == 2:
+                self.board.get_scoreboard()[1].setStyleSheet(
+                    "font-size: 15px; color: green")
+                self.board.get_scoreboard()[0].setStyleSheet(
+                    "font-size: 15px; color: black")
+
+            self.actual_symbol = self.list_of_players[self.actual_player -
+                                                      1].get_player_sign()
+            self.actual_stylesheet = self.list_of_players[self.actual_player -
+                                                          1].get_player_stylesheet()
 
     def check_if_player_has_won(self):
+        buttons_horizontal_bool = self.check_buttons_horizontally()
+        buttons_diagonal_bool = self.check_buttons_diagonally()
+        buttons_vertical_bool = self.check_buttons_vertically()
+
         if self.turn == 2 or self.turn == 0:
-            # print(self.check_buttons_horizontally())
-            # print(self.check_buttons_vertically())
-            print(self.check_buttons_diagonally())
+            if buttons_horizontal_bool == True or buttons_diagonal_bool == True or buttons_vertical_bool == True:
+                for row in self.button_list:
+                    for button in row:
+                        button.setDisabled(True)
+
+                self.update_scoreboard()
+                #QtCore.QTimer.singleShot(2000, lambda:num(i))
+                QtTest.QTest.qWait(2000)
+                self.next_round()
 
     def check_buttons_horizontally(self):
         i = 0
 
         for row in self.button_list:
             for index, button in enumerate(row):
-                if button.text() == row[index-1].text() and button.text() != "" and index != 0:
+                if button.text() == row[index-1].text() and button.text() != " " and index != 0:
                     i += 1
 
             if i == 2:
@@ -98,7 +131,7 @@ class Game:
         transpose_matrix = transpose(self.button_list)
         for column in transpose_matrix:
             for index, button in enumerate(column):
-                if button.text() == column[index-1].text() and button.text() != "" and index != 0:
+                if button.text() == column[index-1].text() and button.text() != " " and index != 0:
                     i += 1
 
             if i == 2:
@@ -117,7 +150,7 @@ class Game:
         previous_button_text = ""
 
         for row in self.button_list:
-            if row[index1].text() == previous_button_text and row[index1].text() != "":
+            if row[index1].text() == previous_button_text and row[index1].text() != " ":
                 i_diagonal_1 += 1
 
             previous_button_text = row[index1].text()
@@ -125,7 +158,7 @@ class Game:
             index1 += 1
 
         for row in self.button_list:
-            if row[index2].text() == previous_button_text and row[index2].text() != "":
+            if row[index2].text() == previous_button_text and row[index2].text() != " ":
                 i_diagonal_2 += 1
 
             previous_button_text = row[index2].text()
@@ -148,6 +181,21 @@ class Game:
                 lista = []
 
         self.button_list = matrix
+
+    def update_scoreboard(self):
+        self.list_of_players[self.actual_player-1].update_score()
+
+        score_of_actual_player = self.board.get_scoreboard()[
+            self.actual_player-1]
+
+        score_of_actual_player.setText(
+            score_of_actual_player.text()[0:-1] + str(self.list_of_players[self.actual_player-1].get_score()))
+
+    def next_round(self):
+        for row in self.button_list:
+            for button in row:
+                button.setText(" ")
+                button.setDisabled(False)
 
 
 if __name__ == "__main__":
