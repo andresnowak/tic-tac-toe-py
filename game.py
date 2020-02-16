@@ -36,7 +36,8 @@ class Game:
         self.board = Board(WIDTH, HEIGHT)
         # Change scoreboard of the actual player to say it is its turn
         # with a green color
-        self.board.get_scoreboard()[self.actual_player-1].setStyleSheet(
+        self.scoreboard = self.board.get_scoreboard()
+        self.scoreboard[self.actual_player-1].setStyleSheet(
             "font-size: 15px; color: green")
 
         self.connect_event_to_buttons()
@@ -50,65 +51,76 @@ class Game:
         self.button_list = self.board.get_buttons()
 
         for button in self.button_list:
-            button.clicked.connect(self.update_button_text(button))
+            button.clicked.connect(self.update_button_text)
 
-    def update_button_text(self, button):
-        # We made like this because lambda didnt give th efunction the correct
-        # button it always gave it the last button, and why does having two
-        # functions work, i dont know
-        def button_text():
-            button.setStyleSheet(self.actual_stylesheet)
-            button.setText(self.actual_symbol)
-            button.animateClick(1)
-            button.setDisabled(True)
+    def update_button_text(self):
+        button = self.board.sender()
 
-            self.turn += 1
-            self.check_if_player_has_won()
-            self.update_actual_player()
+        button.setStyleSheet(self.actual_stylesheet)
+        button.setText(self.actual_symbol)
+        # To update the change of text in the button
+        button.repaint()
 
-        return button_text
+        button.setDisabled(True)
+
+        self.turn += 1
+
+        self.check_if_player_has_won()
+        self.update_actual_player()
+        self.check_for_tie()
 
     def update_actual_player(self):
-        # Todo: fix how we change the scoreboard
-        if self.turn == 2:
+        if self.turn == 1:
             self.turn *= -1
 
             self.actual_player = 2
         elif self.turn == 0:
             self.actual_player = 1
 
-        if self.turn == -2 or self.turn == 0:
-            if self.actual_player == 1:
-                self.board.get_scoreboard()[0].setStyleSheet(
-                    "font-size: 15px; color: green")
-                self.board.get_scoreboard()[1].setStyleSheet(
-                    "font-size: 15px; color: black")
-            elif self.actual_player == 2:
-                self.board.get_scoreboard()[1].setStyleSheet(
-                    "font-size: 15px; color: green")
-                self.board.get_scoreboard()[0].setStyleSheet(
-                    "font-size: 15px; color: black")
+        self.scoreboard[self.actual_player-1].setStyleSheet(
+            "font-size: 15px; color: green")
+        # To change the text of the other player to black we use the if
+        self.scoreboard[1 if self.actual_player-1 == 0 else 0].setStyleSheet(
+            "font-size: 15px; color: black")
 
-            self.actual_symbol = self.list_of_players[self.actual_player -
-                                                      1].get_player_sign()
-            self.actual_stylesheet = self.list_of_players[self.actual_player -
-                                                          1].get_player_stylesheet()
+        for i in range(2):
+            # To update the change of text in the scoreboard
+            self.scoreboard[i].repaint()
+
+        self.actual_symbol = self.list_of_players[self.actual_player -
+                                                  1].get_player_sign()
+        self.actual_stylesheet = self.list_of_players[self.actual_player -
+                                                      1].get_player_stylesheet()
 
     def check_if_player_has_won(self):
         buttons_horizontal_bool = self.check_buttons_horizontally()
         buttons_diagonal_bool = self.check_buttons_diagonally()
         buttons_vertical_bool = self.check_buttons_vertically()
 
-        if self.turn == 2 or self.turn == 0:
-            if buttons_horizontal_bool or buttons_diagonal_bool or buttons_vertical_bool:
-                for row in self.button_list:
-                    for button in row:
-                        button.setDisabled(True)
+        if buttons_horizontal_bool or buttons_diagonal_bool or buttons_vertical_bool:
+            self.disable_buttons()
 
-                self.update_scoreboard()
-                #QtCore.QTimer.singleShot(2000, lambda:num(i))
-                QtTest.QTest.qWait(2000)
-                self.next_round()
+            self.update_scoreboard()
+            # QtCore.QTimer.singleShot(2000, lambda:num(i))
+            QtTest.QTest.qWait(2000)
+            self.next_round()
+
+    def check_for_tie(self):
+        state = 0
+
+        for row in self.button_list:
+            for button in row:
+                if button.isEnabled() == False:
+                    state += 1
+
+        if state == 9:
+            QtTest.QTest.qWait(2000)
+            self.next_round()
+
+    def disable_buttons(self):
+        for row in self.button_list:
+            for button in row:
+                button.setDisabled(True)
 
     def check_buttons_horizontally(self):
         i = 0
@@ -147,21 +159,21 @@ class Game:
 
         index1 = 0
         index2 = 2
-        previous_button_text = ""
+        previous_button_text1 = ""
+        previous_button_text2 = ""
 
         for row in self.button_list:
-            if row[index1].text() == previous_button_text and row[index1].text() != " ":
+            if row[index1].text() == previous_button_text1 and row[index1].text() != " ":
                 i_diagonal_1 += 1
 
-            previous_button_text = row[index1].text()
+            previous_button_text1 = row[index1].text()
 
             index1 += 1
 
-        for row in self.button_list:
-            if row[index2].text() == previous_button_text and row[index2].text() != " ":
+            if row[index2].text() == previous_button_text2 and row[index2].text() != " ":
                 i_diagonal_2 += 1
 
-            previous_button_text = row[index2].text()
+            previous_button_text2 = row[index2].text()
 
             index2 -= 1
 
