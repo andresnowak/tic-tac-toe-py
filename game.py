@@ -154,6 +154,7 @@ class Game:
         return False
 
     def check_buttons_diagonally(self):
+        # Todo: change how we checked diagonally
         i_diagonal_1 = 0
         i_diagonal_2 = 0
 
