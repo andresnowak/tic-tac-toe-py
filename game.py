@@ -9,6 +9,7 @@ import sys
 from board import Board
 from player import Player
 from PyQt5.QtWidgets import QApplication
+from numpy import transpose
 
 
 class Game:
@@ -33,6 +34,8 @@ class Game:
 
         self.connect_event_to_buttons()
         self.board.show()
+        # Convert list of buttons to matrix
+        self.convert_button_list_to_matrix()
         # Run the main Qt loop
         sys.exit(app.exec_())
 
@@ -70,44 +73,81 @@ class Game:
 
     def check_if_player_has_won(self):
         if self.turn == 2 or self.turn == 0:
-            print(self.check_buttons_horizontally())
+            # print(self.check_buttons_horizontally())
+            # print(self.check_buttons_vertically())
+            print(self.check_buttons_diagonally())
 
     def check_buttons_horizontally(self):
         i = 0
 
-        for index, button in enumerate(self.button_list):
-            if (index) % 3 != 0:
-                if button.text() == self.button_list[index-1].text() and button.text() != "":
+        for row in self.button_list:
+            for index, button in enumerate(row):
+                if button.text() == row[index-1].text() and button.text() != "" and index != 0:
                     i += 1
 
-            if (index + 1) % 3 == 0:
-                if i == 2:
-                    return True
-                else:
-                    i = 0
-
-                buttons_to_check = []
+            if i == 2:
+                return True
+            else:
+                i = 0
 
         return False
 
     def check_buttons_vertically(self):
-        for button in self.button_list:
-            pass
+        i = 0
+
+        transpose_matrix = transpose(self.button_list)
+        for column in transpose_matrix:
+            for index, button in enumerate(column):
+                if button.text() == column[index-1].text() and button.text() != "" and index != 0:
+                    i += 1
+
+            if i == 2:
+                return True
+            else:
+                i = 0
+
+        return False
 
     def check_buttons_diagonally(self):
-        pass
+        i_diagonal_1 = 0
+        i_diagonal_2 = 0
 
-    def check_if_all_buttons_are_equal(self, list_of_buttons):
-        i = 0
-        for index, button in enumerate(list_of_buttons):
-            if button.text() == list_of_buttons[index-1].text():
-                i += 1
-                print(button.text())
+        index1 = 0
+        index2 = 2
+        previous_button_text = ""
 
-        if i == 2:
+        for row in self.button_list:
+            if row[index1].text() == previous_button_text and row[index1].text() != "":
+                i_diagonal_1 += 1
+
+            previous_button_text = row[index1].text()
+
+            index1 += 1
+
+        for row in self.button_list:
+            if row[index2].text() == previous_button_text and row[index2].text() != "":
+                i_diagonal_2 += 1
+
+            previous_button_text = row[index2].text()
+
+            index2 -= 1
+
+        if i_diagonal_1 == 2 or i_diagonal_2 == 2:
             return True
         else:
             return False
+
+    def convert_button_list_to_matrix(self):
+        matrix = []
+        lista = []
+
+        for index, button in enumerate(self.button_list):
+            lista.append(button)
+            if (index + 1) % 3 == 0:
+                matrix.append(lista)
+                lista = []
+
+        self.button_list = matrix
 
 
 if __name__ == "__main__":
