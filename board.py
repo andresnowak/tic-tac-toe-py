@@ -55,8 +55,8 @@ class Board(QDialog):
                 self.buttons_list.append(button)
 
     def __create_scoreboard(self, layout):
-        self.player1 = QLabel("player1: 0")
-        self.player2 = QLabel("player2: 0")
+        self.player1 = QLabel("player " + u"\u0058" + ": 0")
+        self.player2 = QLabel("player " + u"\u20DD" + ": 0")
         self.player1.setStyleSheet("font-size: 15px")
         self.player2.setStyleSheet("font-size: 15px")
 
