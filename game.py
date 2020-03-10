@@ -154,31 +154,9 @@ class Game:
         return False
 
     def check_buttons_diagonally(self):
-        # Todo: change how we checked diagonally
-        i_diagonal_1 = 0
-        i_diagonal_2 = 0
-
-        index1 = 0
-        index2 = 2
-        previous_button_text1 = ""
-        previous_button_text2 = ""
-
-        for row in self.button_list:
-            if row[index1].text() == previous_button_text1 and row[index1].text() != " ":
-                i_diagonal_1 += 1
-
-            previous_button_text1 = row[index1].text()
-
-            index1 += 1
-
-            if row[index2].text() == previous_button_text2 and row[index2].text() != " ":
-                i_diagonal_2 += 1
-
-            previous_button_text2 = row[index2].text()
-
-            index2 -= 1
-
-        if i_diagonal_1 == 2 or i_diagonal_2 == 2:
+        if self.button_list[0][0] == self.button_list[1][1] and self.button_list[1][1] == self.button_list[2][2]:
+            return True
+        elif self.button_list[0][2] == self.button_list[1][1] and self.button_list[1][1] == self.button_list[2][0]:
             return True
         else:
             return False
