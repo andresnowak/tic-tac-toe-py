@@ -154,9 +154,9 @@ class Game:
         return False
 
     def check_buttons_diagonally(self):
-        if self.button_list[0][0] == self.button_list[1][1] and self.button_list[1][1] == self.button_list[2][2]:
+        if self.button_list[0][0].text() == self.button_list[1][1].text() == self.button_list[2][2].text() and self.button_list[0][0].text() != " " and self.button_list[1][1].text() != " " and self.button_list[0][2] != " ":
             return True
-        elif self.button_list[0][2] == self.button_list[1][1] and self.button_list[1][1] == self.button_list[2][0]:
+        elif self.button_list[0][2].text() == self.button_list[1][1].text() == self.button_list[2][0].text() and self.button_list[0][2].text() != " " and self.button_list[1][1].text() != " " and self.button_list[2][0] != " ":
             return True
         else:
             return False
